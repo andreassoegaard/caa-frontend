@@ -34,7 +34,6 @@ const providers = [
       password: { label: "Password", type: "password" },
     },
     authorize: async (credentials) => {
-      console.log(process.env.API_URL + "/api/auth/login");
       try {
         // Authenticate user with credentials
         const user = await axios.post(process.env.API_URL + "/api/auth/login", {
