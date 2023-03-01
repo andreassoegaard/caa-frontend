@@ -6,7 +6,7 @@ async function refreshAccessToken(tokenObject: any) {
   try {
     // Get a new set of tokens with a refreshToken
     const tokenResponse = await axios.post(
-      process.env.API_URL + "/auth/validate",
+      process.env.API_URL + "/api/auth/validate",
       {
         token: tokenObject.refreshToken,
       }
@@ -36,7 +36,7 @@ const providers = [
     authorize: async (credentials) => {
       try {
         // Authenticate user with credentials
-        const user = await axios.post(process.env.API_URL + "/auth/login", {
+        const user = await axios.post(process.env.API_URL + "/api/auth/login", {
           password: credentials?.password,
           email: credentials?.email,
         });
