@@ -46,6 +46,7 @@ const providers = [
         }
         return null;
       } catch (e) {
+        console.log(e);
         throw new Error("Next Auth - Authorize: Authentication error");
       }
     },
