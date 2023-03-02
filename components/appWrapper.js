@@ -1,9 +1,9 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useMemo } from "react";
+import { useRouter } from "next/router";
+import { useSession, signOut } from "next-auth/react";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
-  CalendarIcon,
-  ChartBarIcon,
   FolderIcon,
   HomeIcon,
   InboxIcon,
@@ -11,26 +11,75 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import useAuth from "../hooks/useAuth";
+import Image from "next/image";
 
-const navigation = [
-  { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
-  { name: "Team", href: "#", icon: UsersIcon, current: false },
-  { name: "Projects", href: "#", icon: FolderIcon, current: false },
-  { name: "Calendar", href: "#", icon: CalendarIcon, current: false },
-  { name: "Documents", href: "#", icon: InboxIcon, current: false },
-  { name: "Reports", href: "#", icon: ChartBarIcon, current: false },
-];
-
-function classNames(...classes) {
+const classNames = (...classes) => {
   return classes.filter(Boolean).join(" ");
-}
+};
 
-export default function AppWrapper({ children }) {
+export default function AppWrapper({ title, children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isAuthenticated = useAuth(true);
+  const router = useRouter();
+
+  const { data: session, status } = useSession();
+
+  const signUserOut = async () => {
+    const requestHeaders = new Headers();
+    requestHeaders.set("Content-Type", "application/json");
+    const requestOptions = {
+      method: "POST",
+      headers: requestHeaders,
+      body: JSON.stringify({
+        token: session?.refreshToken,
+      }),
+    };
+    const logoutEndpoint = await fetch(
+      `${process.env.API_URL}/api/auth/logout`,
+      requestOptions
+    );
+    if (logoutEndpoint.ok) {
+      signOut({ redirect: false }).then(({ ok, error }) => {
+        if (ok) {
+          router.push("/login");
+        } else {
+          console.log(error);
+        }
+      });
+    }
+  };
+
+  const navigation = useMemo(() => {
+    return [
+      {
+        name: "Dashboard",
+        href: "/",
+        icon: HomeIcon,
+        current: router.route === "/",
+      },
+      {
+        name: "Companies",
+        href: "/companies",
+        icon: FolderIcon,
+        current: router.route.includes("companies"),
+      },
+      {
+        name: "QA",
+        href: "/qa",
+        icon: InboxIcon,
+        current: router.route.includes("qa"),
+      },
+      {
+        name: "Users",
+        href: "/users",
+        icon: UsersIcon,
+        current: router.route.includes("users"),
+      },
+    ];
+  }, [router.route]);
 
   let component = <></>;
-  if (isAuthenticated) {
+  if (isAuthenticated && session) {
     component = (
       <>
         <div>
@@ -88,10 +137,12 @@ export default function AppWrapper({ children }) {
                     </Transition.Child>
                     <div className='h-0 flex-1 overflow-y-auto pt-5 pb-4'>
                       <div className='flex flex-shrink-0 items-center px-4'>
-                        <img
-                          className='h-8 w-auto'
-                          src='https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500'
-                          alt='Your Company'
+                        <Image
+                          src='/caafinance.svg'
+                          alt='CAA Finance'
+                          width={200}
+                          height={50}
+                          className='mx-auto'
                         />
                       </div>
                       <nav className='mt-5 space-y-1 px-2'>
@@ -153,43 +204,45 @@ export default function AppWrapper({ children }) {
           {/* Static sidebar for desktop */}
           <div className='hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col'>
             {/* Sidebar component, swap this element with another sidebar if you like */}
-            <div className='flex min-h-0 flex-1 flex-col bg-gray-800'>
+            <div className='flex min-h-0 flex-1 flex-col bg-black'>
               <div className='flex flex-1 flex-col overflow-y-auto pt-5 pb-4'>
                 <div className='flex flex-shrink-0 items-center px-4'>
-                  <img
-                    className='h-8 w-auto'
-                    src='https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500'
-                    alt='Your Company'
+                  <Image
+                    src='/caafinance-white.svg'
+                    alt='CAA Finance'
+                    width={100}
+                    height={20}
+                    className='mx-auto'
                   />
                 </div>
                 <nav className='mt-5 flex-1 space-y-1 px-2'>
                   {navigation.map((item) => (
-                    <a
+                    <div
                       key={item.name}
-                      href={item.href}
+                      onClick={() => router.replace(item.href)}
                       className={classNames(
                         item.current
-                          ? "bg-gray-900 text-white"
+                          ? "bg-white text-black"
                           : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                        "group flex items-center rounded-md px-2 py-2 text-sm font-medium"
+                        "group flex items-center rounded-md px-2 py-2 text-sm font-medium cursor-pointer"
                       )}
                     >
                       <item.icon
                         className={classNames(
                           item.current
-                            ? "text-gray-300"
+                            ? "text-black"
                             : "text-gray-400 group-hover:text-gray-300",
                           "mr-3 h-6 w-6 flex-shrink-0"
                         )}
                         aria-hidden='true'
                       />
                       {item.name}
-                    </a>
+                    </div>
                   ))}
                 </nav>
               </div>
-              <div className='flex flex-shrink-0 bg-gray-700 p-4'>
-                <a href='#' className='group block w-full flex-shrink-0'>
+              <div className='flex flex-shrink-0 bg-neutral-900 p-4'>
+                <div className='block w-full flex-shrink-0'>
                   <div className='flex items-center'>
                     <div>
                       <img
@@ -199,13 +252,18 @@ export default function AppWrapper({ children }) {
                       />
                     </div>
                     <div className='ml-3'>
-                      <p className='text-sm font-medium text-white'>Tom Cook</p>
-                      <p className='text-xs font-medium text-gray-300 group-hover:text-gray-200'>
-                        View profile
+                      <p className='text-sm font-medium text-white'>
+                        {session.user.name}
                       </p>
+                      <div
+                        className='text-xs font-medium text-gray-300 hover:text-gray-200 cursor-pointer'
+                        onClick={signUserOut}
+                      >
+                        Log ud
+                      </div>
                     </div>
                   </div>
-                </a>
+                </div>
               </div>
             </div>
           </div>
@@ -224,7 +282,7 @@ export default function AppWrapper({ children }) {
               <div className='py-6'>
                 <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
                   <h1 className='text-2xl font-semibold text-gray-900'>
-                    Dashboard
+                    {title}
                   </h1>
                 </div>
                 <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
