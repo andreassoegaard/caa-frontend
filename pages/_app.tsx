@@ -1,4 +1,5 @@
-import "@/styles/globals.css";
+import "@/styles/globals.scss";
+import "@/styles/buttons.scss";
 import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
 import { useState } from "react";

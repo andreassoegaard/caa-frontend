@@ -1,26 +1,21 @@
 import { PropsWithChildren } from "react";
 import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 interface PageModal {
   title: string;
   open: boolean;
-  setOpen(state: boolean): void;
+  onClose(event: any): void;
 }
 
 export default function PageModal(props: PropsWithChildren<PageModal>) {
-  const setOpen = (state: boolean) => {
-    props.setOpen(state);
-  };
-  const cancelButtonRef = useRef(null);
   return (
     <Transition.Root show={props.open} as={Fragment}>
       <Dialog
         as='div'
         className='relative z-10'
-        initialFocus={cancelButtonRef}
-        onClose={() => setOpen(false)}
+        onClose={(e) => props.onClose(e)}
       >
         <Transition.Child
           as={Fragment}
@@ -46,46 +41,18 @@ export default function PageModal(props: PropsWithChildren<PageModal>) {
               leaveTo='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
             >
               <Dialog.Panel className='relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6'>
-                <div className='sm:flex sm:items-start'>
-                  <div className='mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10'>
-                    <ExclamationTriangleIcon
-                      className='h-6 w-6 text-red-600'
-                      aria-hidden='true'
-                    />
-                  </div>
-                  <div className='mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left'>
-                    <Dialog.Title
-                      as='h3'
-                      className='text-base font-semibold leading-6 text-gray-900'
-                    >
-                      Deactivate account
-                    </Dialog.Title>
-                    <div className='mt-2'>
-                      <p className='text-sm text-gray-500'>
-                        Are you sure you want to deactivate your account? All of
-                        your data will be permanently removed from our servers
-                        forever. This action cannot be undone.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className='mt-5 sm:mt-4 sm:flex sm:flex-row-reverse'>
+                <div className='font-semibold mb-3'>{props.title}</div>
+                <div className='absolute top-0 right-0 hidden pt-6 pr-6 sm:block'>
                   <button
                     type='button'
-                    className='inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto'
-                    onClick={() => setOpen(false)}
+                    className='rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none'
+                    onClick={(e) => props.onClose(e)}
                   >
-                    Deactivate
-                  </button>
-                  <button
-                    type='button'
-                    className='mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto'
-                    onClick={() => setOpen(false)}
-                    ref={cancelButtonRef}
-                  >
-                    Cancel
+                    <span className='sr-only'>Close</span>
+                    <XMarkIcon className='h-6 w-6' aria-hidden='true' />
                   </button>
                 </div>
+                {props.children}
               </Dialog.Panel>
             </Transition.Child>
           </div>
