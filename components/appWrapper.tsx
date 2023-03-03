@@ -10,14 +10,34 @@ import {
   UsersIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { PropsWithChildren } from "react";
+import { ReactNode } from "react";
 import useAuth from "../hooks/useAuth";
 import Image from "next/image";
 
-const classNames = (...classes: any) => {
+interface Tab {
+  current: boolean;
+  name: string;
+  href: string;
+}
+interface Props {
+  title: string;
+  subtitle?: string;
+  tabs?: Tab[];
+  headerRight?: ReactNode;
+}
+
+const classNames = (...classes: string[]) => {
   return classes.filter(Boolean).join(" ");
 };
 
-export default function AppWrapper({ title, children, tabs }: any) {
+export default function AppWrapper({
+  title,
+  subtitle,
+  children,
+  tabs,
+  headerRight,
+}: PropsWithChildren<Props>) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isAuthenticated = useAuth(true);
   const router = useRouter();
@@ -209,16 +229,16 @@ export default function AppWrapper({ title, children, tabs }: any) {
                   <Image
                     src='/caafinance-white.svg'
                     alt='CAA Finance'
-                    width={100}
-                    height={20}
+                    width={99}
+                    height={52}
                     className='mx-auto'
                   />
                 </div>
                 <nav className='mt-5 flex-1 space-y-1 px-2'>
                   {navigation.map((item) => (
-                    <div
+                    <a
                       key={item.name}
-                      onClick={() => router.replace(item.href)}
+                      href={item.href}
                       className={classNames(
                         item.current
                           ? "bg-white text-black"
@@ -236,7 +256,7 @@ export default function AppWrapper({ title, children, tabs }: any) {
                         aria-hidden='true'
                       />
                       {item.name}
-                    </div>
+                    </a>
                   ))}
                 </nav>
               </div>
@@ -279,10 +299,16 @@ export default function AppWrapper({ title, children, tabs }: any) {
             </div>
             <main className='flex-1'>
               <div className='py-6'>
-                <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4'>
-                  <h1 className='text-2xl font-semibold text-gray-900'>
-                    {title}
-                  </h1>
+                <div className='flex justify-between items-center mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4'>
+                  <div className='flex flex-col'>
+                    <div className='text-slate-500 text-sm font-medium mb-1'>
+                      {subtitle}
+                    </div>
+                    <h1 className='text-2xl font-semibold text-gray-900'>
+                      {title}
+                    </h1>
+                  </div>
+                  {headerRight}
                 </div>
                 {tabs && tabs.length > 0 && (
                   <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4'>
@@ -295,7 +321,9 @@ export default function AppWrapper({ title, children, tabs }: any) {
                         id='tabs'
                         name='tabs'
                         className='block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
-                        defaultValue={tabs.find((tab: any) => tab.current).name}
+                        defaultValue={
+                          tabs.find((tab: any) => tab.current)?.name
+                        }
                       >
                         {tabs.map((tab: any) => (
                           <option key={tab.name}>{tab.name}</option>
@@ -303,7 +331,7 @@ export default function AppWrapper({ title, children, tabs }: any) {
                       </select>
                     </div>
                     <div className='hidden sm:block'>
-                      <nav className='flex space-x-4' aria-label='Tabs'>
+                      <nav className='flex space-x-2.5' aria-label='Tabs'>
                         {tabs.map((tab: any) => (
                           <a
                             key={tab.name}

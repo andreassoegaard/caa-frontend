@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import LoadingSpinner from "./Ui/LoadingSpinner";
 
 export default function TableComponent(props) {
   const classNames = (...classes) => {
@@ -7,7 +8,7 @@ export default function TableComponent(props) {
 
   return (
     <>
-      <div className='mt-8 flow-root'>
+      <div className='flow-root'>
         <div className='-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8'>
           <div className='inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8'>
             <div className='overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg'>
@@ -20,7 +21,7 @@ export default function TableComponent(props) {
                         scope='col'
                         className={classNames(
                           index === 0 ? "sm:pl-6 pl-4 pr-3" : "px-3",
-                          index === props.data.length
+                          index === props.headers.length
                             ? "text-right"
                             : "text-left",
                           "py-3.5 text-left text-sm font-semibold text-gray-900"
@@ -54,12 +55,16 @@ export default function TableComponent(props) {
                         {props.headers.filter((item) => item.id === "edit")
                           .length === 1 && (
                           <td className='whitespace-nowrap py-4 pr-4 pl-3 text-sm text-indigo-600 text-right font-medium'>
-                            <div
-                              onClick={() => props.options.rowClick(dataItem)}
-                              className='cursor-pointer'
-                            >
-                              Rediger
-                            </div>
+                            {props.options.editIdFetch === dataItem.id ? (
+                              <LoadingSpinner />
+                            ) : (
+                              <div
+                                onClick={() => props.options.rowClick(dataItem)}
+                                className='cursor-pointer'
+                              >
+                                Edit
+                              </div>
+                            )}
                           </td>
                         )}
                       </tr>

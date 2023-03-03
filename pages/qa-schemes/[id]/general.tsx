@@ -7,6 +7,7 @@ import PageBox from "@/components/pageBox";
 export default function Qa(props: any) {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState(props.data.name);
+  const [description, setDescription] = useState(props.data.description);
   const router = useRouter();
 
   const handleSubmit = async (event: any) => {
@@ -21,6 +22,7 @@ export default function Qa(props: any) {
         headers: requestHeaders,
         body: JSON.stringify({
           name,
+          description,
         }),
       };
       const endpoint = await fetch(
@@ -85,10 +87,10 @@ export default function Qa(props: any) {
   };
 
   return (
-    <AppWrapper title='Edit QA Scheme' tabs={tabs}>
-      <PageBox footer={<SubmitButton />}>
+    <AppWrapper title={name} subtitle='Edit QA Scheme' tabs={tabs}>
+      <PageBox title='General'>
         <form id='submitForm' onSubmit={handleSubmit}>
-          <div>
+          <div className='mb-4'>
             <label
               htmlFor='name'
               className='block text-sm font-medium text-gray-700'
@@ -108,8 +110,30 @@ export default function Qa(props: any) {
               />
             </div>
           </div>
+          <div>
+            <label
+              htmlFor='description'
+              className='block text-sm font-medium text-gray-700'
+            >
+              Description
+            </label>
+            <div className='mt-1'>
+              <textarea
+                name='description'
+                id='description'
+                rows={10}
+                className='block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                placeholder='Enter a description (optional)'
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+              />
+            </div>
+          </div>
         </form>
       </PageBox>
+      <div className='flex justify-end mt-4'>
+        <SubmitButton />
+      </div>
     </AppWrapper>
   );
 }

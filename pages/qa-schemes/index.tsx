@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import { useSession, getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import TableComponent from "@/components/tableComponent";
+import PageButton from "@/components/pageButton";
+import PageModal from "@/components/pageModal";
+import QaSchemeForm from "@/components/qaSchemes/QaSchemeForm";
 
 export default function Qa(props: any) {
   const tableHeaders = [
@@ -24,8 +27,18 @@ export default function Qa(props: any) {
     },
   };
 
+  const HeaderRight = () => {
+    return (
+      <PageButton style='black' onClick={() => setNewQaOpen(true)}>
+        Create New
+      </PageButton>
+    );
+  };
+
+  const [newQaOpen, setNewQaOpen] = useState(false);
+
   return (
-    <AppWrapper title='QA Schemes'>
+    <AppWrapper title='QA Schemes' headerRight={<HeaderRight />}>
       {props.data && props.data.length > 0 && (
         <TableComponent
           headers={tableHeaders}
@@ -33,6 +46,13 @@ export default function Qa(props: any) {
           options={options}
         ></TableComponent>
       )}
+      <PageModal
+        title='New QA Scheme'
+        open={newQaOpen}
+        onClose={() => setNewQaOpen(false)}
+      >
+        Tilføj ny
+      </PageModal>
     </AppWrapper>
   );
 }
