@@ -13,11 +13,11 @@ import {
 import useAuth from "../hooks/useAuth";
 import Image from "next/image";
 
-const classNames = (...classes) => {
+const classNames = (...classes: any) => {
   return classes.filter(Boolean).join(" ");
 };
 
-export default function AppWrapper({ title, children }) {
+export default function AppWrapper({ title, children, tabs }: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isAuthenticated = useAuth(true);
   const router = useRouter();
@@ -39,13 +39,12 @@ export default function AppWrapper({ title, children }) {
       requestOptions
     );
     if (logoutEndpoint.ok) {
-      signOut({ redirect: false }).then(({ ok, error }) => {
-        if (ok) {
-          router.push("/login");
-        } else {
-          console.log(error);
-        }
-      });
+      try {
+        signOut({ redirect: false });
+        router.replace("/login");
+      } catch (e) {
+        console.log(e);
+      }
     }
   };
 
@@ -64,8 +63,8 @@ export default function AppWrapper({ title, children }) {
         current: router.route.includes("companies"),
       },
       {
-        name: "QA",
-        href: "/qa",
+        name: "QA Schemes",
+        href: "/qa-schemes",
         icon: InboxIcon,
         current: router.route.includes("qa"),
       },
@@ -253,7 +252,7 @@ export default function AppWrapper({ title, children }) {
                     </div>
                     <div className='ml-3'>
                       <p className='text-sm font-medium text-white'>
-                        {session.user.name}
+                        {session.user?.name}
                       </p>
                       <div
                         className='text-xs font-medium text-gray-300 hover:text-gray-200 cursor-pointer'
@@ -280,11 +279,50 @@ export default function AppWrapper({ title, children }) {
             </div>
             <main className='flex-1'>
               <div className='py-6'>
-                <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+                <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4'>
                   <h1 className='text-2xl font-semibold text-gray-900'>
                     {title}
                   </h1>
                 </div>
+                {tabs && tabs.length > 0 && (
+                  <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-4'>
+                    <div className='sm:hidden'>
+                      <label htmlFor='tabs' className='sr-only'>
+                        Select a tab
+                      </label>
+                      {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+                      <select
+                        id='tabs'
+                        name='tabs'
+                        className='block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
+                        defaultValue={tabs.find((tab: any) => tab.current).name}
+                      >
+                        {tabs.map((tab: any) => (
+                          <option key={tab.name}>{tab.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className='hidden sm:block'>
+                      <nav className='flex space-x-4' aria-label='Tabs'>
+                        {tabs.map((tab: any) => (
+                          <a
+                            key={tab.name}
+                            href={tab.href}
+                            className={classNames(
+                              tab.current
+                                ? "bg-black text-white"
+                                : "text-gray-500 hover:text-gray-800 hover:bg-gray-200",
+                              "rounded-md px-3 py-2 text-sm font-medium"
+                            )}
+                            aria-current={tab.current ? "page" : undefined}
+                          >
+                            {tab.name}
+                          </a>
+                        ))}
+                      </nav>
+                    </div>
+                  </div>
+                )}
                 <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
                   {children}
                 </div>
