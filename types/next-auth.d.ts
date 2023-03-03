@@ -14,6 +14,9 @@ declare module "next-auth" {
   }
 
   interface User {
+    refreshToken?: string;
+    accessToken?: string;
+    accessTokenExpiry?: string;
     name?: string;
     email?: string | null;
     id?: number;
