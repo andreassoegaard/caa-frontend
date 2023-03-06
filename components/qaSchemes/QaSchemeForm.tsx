@@ -12,7 +12,7 @@ interface Form {
   submitButton: string;
 }
 
-export default function QuestionForm(props: PropsWithChildren<Form>) {
+export default function QaSchemeForm(props: PropsWithChildren<Form>) {
   return (
     <form onSubmit={props.onSubmit}>
       <div className='mb-3'>
