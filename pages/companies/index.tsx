@@ -20,36 +20,6 @@ export default function Companies(props: any) {
                       {company.name}
                     </p>
                   </div>
-                  {/* <div className='mt-2 sm:flex sm:justify-between'>
-                    <div className='sm:flex'>
-                      <p className='flex items-center text-sm text-gray-500'>
-                        <UsersIcon
-                          className='mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400'
-                          aria-hidden='true'
-                        />
-                        {position.department}
-                      </p>
-                      <p className='mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6'>
-                        <MapPinIcon
-                          className='mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400'
-                          aria-hidden='true'
-                        />
-                        {position.location}
-                      </p>
-                    </div>
-                    <div className='mt-2 flex items-center text-sm text-gray-500 sm:mt-0'>
-                      <CalendarIcon
-                        className='mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400'
-                        aria-hidden='true'
-                      />
-                      <p>
-                        Closing on{" "}
-                        <time dateTime={position.closeDate}>
-                          {position.closeDateFull}
-                        </time>
-                      </p>
-                    </div>
-                  </div> */}
                 </div>
               </a>
             </li>
@@ -60,10 +30,17 @@ export default function Companies(props: any) {
   );
 }
 
-export async function getServerSideProps(ctx: any) {
-  const session = await getSession(ctx);
+export async function getServerSideProps(context: any) {
+  const session = await getSession(context);
   let returnData;
-  if (session) {
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  } else {
     const requestHeaders = new Headers();
     requestHeaders.set("Authorization", `Bearer ${session.accessToken}`);
     const requestOptions = {

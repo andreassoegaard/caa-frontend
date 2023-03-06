@@ -12,8 +12,9 @@ import {
 } from "@heroicons/react/24/outline";
 import { PropsWithChildren } from "react";
 import { ReactNode } from "react";
-import useAuth from "../hooks/useAuth";
+import useAuth from "../hooks/Auth";
 import Image from "next/image";
+import { useLogOut } from "@/hooks/LogOut";
 
 interface Tab {
   current: boolean;
@@ -42,31 +43,8 @@ export default function AppWrapper({
   const isAuthenticated = useAuth(true);
   const router = useRouter();
 
-  const { data: session, status } = useSession();
-
-  const signUserOut = async () => {
-    const requestHeaders = new Headers();
-    requestHeaders.set("Content-Type", "application/json");
-    const requestOptions = {
-      method: "POST",
-      headers: requestHeaders,
-      body: JSON.stringify({
-        token: session?.refreshToken,
-      }),
-    };
-    const logoutEndpoint = await fetch(
-      `${process.env.API_URL}/api/auth/logout`,
-      requestOptions
-    );
-    if (logoutEndpoint.ok) {
-      try {
-        signOut({ redirect: false });
-        router.replace("/login");
-      } catch (e) {
-        console.log(e);
-      }
-    }
-  };
+  const { data: session } = useSession();
+  const { logOut } = useLogOut();
 
   const navigation = useMemo(() => {
     return [
@@ -276,7 +254,7 @@ export default function AppWrapper({
                       </p>
                       <div
                         className='text-xs font-medium text-gray-300 hover:text-gray-200 cursor-pointer'
-                        onClick={signUserOut}
+                        onClick={logOut}
                       >
                         Log ud
                       </div>
