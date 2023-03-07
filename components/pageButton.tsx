@@ -6,10 +6,14 @@ interface PageButton {
   form?: string;
   style?: string;
   loading?: boolean;
+  className?: string;
   onClick?(event: any): void;
 }
 
 export default function PageButton(props: PropsWithChildren<PageButton>) {
+  const classNames = (...classes: string[]) => {
+    return classes.join(" ");
+  };
   const buttonClasses = useMemo(() => {
     const classes = [
       "caa-button",
@@ -17,15 +21,26 @@ export default function PageButton(props: PropsWithChildren<PageButton>) {
     ];
     return classes.join(" ");
   }, [props.style]);
+
+  const spinnerColor = useMemo(() => {
+    if (props.style === "red") {
+      return "red";
+    } else {
+      return "black";
+    }
+  }, [props.style]);
   return (
     <button
       type={props.type}
       form={props.form}
-      className={buttonClasses}
+      className={classNames(
+        buttonClasses,
+        props.className ? props.className : ""
+      )}
       disabled={props.loading}
       onClick={props.onClick}
     >
-      {props.loading && <LoadingSpinner />}
+      {props.loading && <LoadingSpinner color={spinnerColor} />}
       {props.children}
     </button>
   );

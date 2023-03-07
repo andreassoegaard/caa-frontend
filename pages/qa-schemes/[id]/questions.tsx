@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { PropsWithChildren } from "react";
 import { getSession } from "next-auth/react";
 import { useState } from "react";
+import { useFetchWrapper } from "@/hooks/FetchWrapper";
 
 // Components
 import AppWrapper from "@/components/appWrapper";
@@ -12,6 +13,7 @@ import TableComponent from "@/components/tableComponent";
 import PageModal from "@/components/pageModal";
 import PageButton from "@/components/pageButton";
 import QuestionForm from "@/components/QaSchemes/QaQuestionForm";
+import DeleteWarningModal from "@/components/Ui/DeleteWarningModal";
 
 // Define props
 interface Props {
@@ -21,8 +23,15 @@ interface Props {
 }
 
 export default function QuestionsPage(props: PropsWithChildren<Props>) {
-  const [showAddModal, setShowAddModal] = useState(false);
+  /**
+   * Hooks
+   */
   const router = useRouter();
+  const fetchWrapper = useFetchWrapper();
+
+  /**
+   * Tabs
+   */
   const tabs = [
     {
       name: "General",
@@ -36,62 +45,12 @@ export default function QuestionsPage(props: PropsWithChildren<Props>) {
     },
   ];
 
-  const [newName, setNewName] = useState<string>("");
-  const [newDescription, setNewDescription] = useState<string>("");
-  const [newImportance, setNewImportance] = useState<number | string>(1);
-  const resetState = () => {
-    setTimeout(() => {
-      setNewName("");
-      setNewDescription("");
-      setNewImportance(1);
-    }, 500);
-  };
-
-  // New question state
+  /**
+   * Table related
+   */
   const refreshData = () => {
     router.replace(router.asPath);
   };
-
-  const closeModal = (e: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-    }
-    setShowAddModal(false);
-    resetState();
-  };
-  const [newQuestionLoading, setNewQuestionLoading] = useState(false);
-  const addNewQuestion = async (event: any) => {
-    setNewQuestionLoading(true);
-    event.preventDefault();
-    try {
-      const requestHeaders = new Headers();
-      requestHeaders.set("Authorization", `Bearer ${props.user.accessToken}`);
-      requestHeaders.set("Content-Type", "application/json");
-      const requestOptions = {
-        method: "POST",
-        headers: requestHeaders,
-        body: JSON.stringify({
-          name: newName,
-          description: newDescription,
-          importance: Number(newImportance),
-        }),
-      };
-      const endpoint = await fetch(
-        `${process.env.API_URL}/api/qaFactors/${props.params.id}`,
-        requestOptions
-      );
-      if (endpoint.ok) {
-        refreshData();
-        setShowAddModal(false);
-        resetState();
-      }
-      setNewQuestionLoading(false);
-    } catch (e) {
-      setNewQuestionLoading(false);
-      console.log(e);
-    }
-  };
-
   const tableHeaders = [
     {
       id: "name",
@@ -107,19 +66,137 @@ export default function QuestionsPage(props: PropsWithChildren<Props>) {
       title: "Importance",
     },
     {
+      id: "delete",
+      title: "",
+    },
+    {
       id: "edit",
       title: "",
     },
   ];
+  const [tableOptions, setTableOptions] = useState({
+    editIdFetch: null,
+    deleteClick: async (item: any) => {
+      try {
+        showDeleteWarningModal(item);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    rowClick: async (item: any) => {
+      try {
+        setTableOptions({
+          ...tableOptions,
+          editIdFetch: item.id,
+        });
+        setEditingId(item.id);
+        const data = await fetchWrapper.get(
+          `${process.env.API_URL}/api/qaFactors/${props.params.id}/${item.id}`
+        );
+        setEditName(data.result.name);
+        setEditDescription(data.result.description);
+        setEditImportance(data.result.importance);
+        setShowEditModal(true);
+        setTableOptions({
+          ...tableOptions,
+          editIdFetch: null,
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    },
+  });
 
-  // Edit QA question
-  const resetEditState = () => {
+  /**
+   * Delete questions
+   */
+  const [deletingId, setDeletingId] = useState(null);
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
+  const [deleteQuestionLoading, setDeleteQuestionLoading] = useState(false);
+
+  const cancelDeleteQuestion = () => {
+    setDeletingId(null);
+    setShowDeleteWarning(false);
+  };
+
+  const deleteQuestion = async () => {
+    setDeleteQuestionLoading(true);
+    try {
+      const endpoint = await fetchWrapper.delete(
+        `${process.env.API_URL}/api/qaFactors/${deletingId}`
+      );
+      if (endpoint && endpoint.message === "OK") {
+        refreshData();
+        setShowDeleteWarning(false);
+      }
+      setDeleteQuestionLoading(false);
+    } catch (e) {
+      setDeleteQuestionLoading(false);
+      console.log(e);
+    }
+  };
+
+  const showDeleteWarningModal = (item: any) => {
+    setDeletingId(item.id);
+    setShowDeleteWarning(true);
+  };
+
+  /**
+   * Add new question
+   */
+
+  // Modal
+  const [showAddModal, setShowAddModal] = useState(false);
+  const closeModal = (e: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    setShowAddModal(false);
+    resetState();
+  };
+  const [newQuestionLoading, setNewQuestionLoading] = useState(false);
+  const addNewQuestion = async (event: any) => {
+    event.preventDefault();
+    setNewQuestionLoading(true);
+    try {
+      await fetchWrapper.post(
+        `${process.env.API_URL}/api/qaFactors/${props.params.id}`,
+        {
+          body: {
+            name: newName,
+            description: newDescription,
+            importance: Number(newImportance),
+          },
+        }
+      );
+      refreshData();
+      setShowAddModal(false);
+      resetState();
+      setNewQuestionLoading(false);
+    } catch (e) {
+      setNewQuestionLoading(false);
+      console.log(e);
+    }
+  };
+
+  // States
+  const [newName, setNewName] = useState<string>("");
+  const [newDescription, setNewDescription] = useState<string>("");
+  const [newImportance, setNewImportance] = useState<number | string>(1);
+  const resetState = () => {
     setTimeout(() => {
-      setEditName("");
-      setEditDescription("");
-      setEditImportance("");
+      setNewName("");
+      setNewDescription("");
+      setNewImportance(1);
     }, 500);
   };
+
+  /**
+   * Edit question
+   */
+
+  // Modal
+  const [showEditModal, setShowEditModal] = useState(false);
   const closeEditModal = (e: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
@@ -130,68 +207,40 @@ export default function QuestionsPage(props: PropsWithChildren<Props>) {
   const editQuestionHandler = async (event: any) => {
     event.preventDefault();
     setEditQuestionLoading(true);
-    const requestHeaders = new Headers();
-    requestHeaders.set("Authorization", `Bearer ${props.user.accessToken}`);
-    requestHeaders.set("Content-Type", "application/json");
-    const requestOptions = {
-      method: "PUT",
-      headers: requestHeaders,
-      body: JSON.stringify({
-        name: editName,
-        description: editDescription,
-        importance: editImportance,
-      }),
-    };
-    const endpoint = await fetch(
-      `${process.env.API_URL}/api/qaFactors/${editingId}`,
-      requestOptions
-    );
-    if (endpoint.ok) {
+    try {
+      await fetchWrapper.put(
+        `${process.env.API_URL}/api/qaFactors/${editingId}`,
+        {
+          body: {
+            name: editName,
+            description: editDescription,
+            importance: editImportance,
+          },
+        }
+      );
       refreshData();
       setShowEditModal(false);
       resetEditState();
+      setEditQuestionLoading(false);
+    } catch (e) {
+      setEditQuestionLoading(false);
+      console.log(e);
     }
-    setEditQuestionLoading(false);
   };
+
+  // States
   const [editQuestionLoading, setEditQuestionLoading] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [editName, setEditName] = useState<string>("");
   const [editDescription, setEditDescription] = useState<string>("");
   const [editImportance, setEditImportance] = useState<number | string>(1);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [options, setOptions] = useState({
-    editIdFetch: null,
-    rowClick: async (item: any) => {
-      try {
-        setOptions({
-          ...options,
-          editIdFetch: item.id,
-        });
-        setEditingId(item.id);
-        const requestHeaders = new Headers();
-        requestHeaders.set("Authorization", `Bearer ${props.user.accessToken}`);
-        const requestOptions = {
-          method: "GET",
-          headers: requestHeaders,
-        };
-        const res = await fetch(
-          `${process.env.API_URL}/api/qaFactors/${props.params.id}/${item.id}`,
-          requestOptions
-        );
-        const data = await res.json();
-        setEditName(data.result.name);
-        setEditDescription(data.result.description);
-        setEditImportance(data.result.importance);
-        setShowEditModal(true);
-        setOptions({
-          ...options,
-          editIdFetch: null,
-        });
-      } catch (e) {
-        console.log(e);
-      }
-    },
-  });
+  const resetEditState = () => {
+    setTimeout(() => {
+      setEditName("");
+      setEditDescription("");
+      setEditImportance("");
+    }, 500);
+  };
 
   return (
     <>
@@ -227,6 +276,15 @@ export default function QuestionsPage(props: PropsWithChildren<Props>) {
           onCancel={closeEditModal}
         ></QuestionForm>
       </PageModal>
+      <DeleteWarningModal
+        title='Are you sure?'
+        description='Are you sure you want to delete this question? All company-answers to this question will be deleted. This action cannot be undone.'
+        submitButton='Delete Question'
+        open={showDeleteWarning}
+        onOk={deleteQuestion}
+        onOkLoading={deleteQuestionLoading}
+        onCancel={cancelDeleteQuestion}
+      />
       <AppWrapper
         title={props.data.category.name}
         subtitle='Edit QA Scheme'
@@ -254,7 +312,7 @@ export default function QuestionsPage(props: PropsWithChildren<Props>) {
             <TableComponent
               headers={tableHeaders}
               data={props.data.questions}
-              options={options}
+              options={tableOptions}
             ></TableComponent>
             <div className='mt-4 flex items-end justify-end'>
               <PageButton style='black' onClick={() => setShowAddModal(true)}>

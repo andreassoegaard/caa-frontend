@@ -6,6 +6,21 @@ export default function TableComponent(props) {
     return classes.filter(Boolean).join(" ");
   };
 
+  const hasDelete = useMemo(() => {
+    if (props.headers.filter((item) => item.id === "delete").length === 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }, [props.headers]);
+  const hasEdit = useMemo(() => {
+    if (props.headers.filter((item) => item.id === "edit").length === 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }, [props.headers]);
+
   return (
     <>
       <div className='flow-root'>
@@ -52,19 +67,36 @@ export default function TableComponent(props) {
                             </td>
                           );
                         })}
-                        {props.headers.filter((item) => item.id === "edit")
-                          .length === 1 && (
-                          <td className='whitespace-nowrap py-4 pr-4 pl-3 text-sm text-indigo-600 text-right font-medium'>
-                            {props.options.editIdFetch === dataItem.id ? (
-                              <LoadingSpinner />
-                            ) : (
-                              <div
-                                onClick={() => props.options.rowClick(dataItem)}
-                                className='cursor-pointer'
-                              >
-                                Edit
-                              </div>
-                            )}
+                        {(hasDelete || hasEdit) && (
+                          <td className='whitespace-nowrap py-4 pr-4 pl-3 text-sm text-balack text-right font-medium'>
+                            <div className='flex items-center justify-end'>
+                              {hasDelete && (
+                                <div
+                                  onClick={() =>
+                                    props.options.deleteClick(dataItem)
+                                  }
+                                  className={classNames(
+                                    "cursor-pointer text-red-600",
+                                    hasEdit ? "mr-4" : ""
+                                  )}
+                                >
+                                  Delete
+                                </div>
+                              )}
+                              {hasEdit &&
+                                (props.options.editIdFetch === dataItem.id ? (
+                                  <LoadingSpinner />
+                                ) : (
+                                  <div
+                                    onClick={() =>
+                                      props.options.rowClick(dataItem)
+                                    }
+                                    className='cursor-pointer'
+                                  >
+                                    Edit
+                                  </div>
+                                ))}
+                            </div>
                           </td>
                         )}
                       </tr>

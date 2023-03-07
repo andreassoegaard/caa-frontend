@@ -4,6 +4,9 @@
   &--style-black {
     @apply bg-black border border-transparent text-white hover:bg-gray-900 focus:ring-black;
   }
+  &--style-red {
+    @apply bg-red-700 border border-transparent text-white hover:bg-red-900 focus:ring-black;
+  }
   &--style-white {
     @apply bg-white border border-gray-200 text-black hover:bg-gray-100 focus:ring-black;
   }
