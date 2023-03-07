@@ -134,7 +134,7 @@ export default function Qa(props: any) {
         />
       </PageModal>
       <DeleteWarningModal
-        title='Are you sure?'
+        title='Delete QA Scheme'
         description='Are you sure you want to delete this QA scheme? All company-answers to this scheme will be deleted. This action cannot be undone.'
         submitButton='Delete QA Scheme'
         open={showDeleteWarning}
