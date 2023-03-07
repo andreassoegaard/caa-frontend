@@ -277,7 +277,7 @@ export default function QuestionsPage(props: PropsWithChildren<Props>) {
         ></QuestionForm>
       </PageModal>
       <DeleteWarningModal
-        title='Are you sure?'
+        title='Delete QA Question'
         description='Are you sure you want to delete this question? All company-answers to this question will be deleted. This action cannot be undone.'
         submitButton='Delete Question'
         open={showDeleteWarning}

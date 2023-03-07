@@ -2,7 +2,7 @@ import { PropsWithChildren, useMemo } from "react";
 import LoadingSpinner from "./Ui/LoadingSpinner";
 
 interface PageButton {
-  type?: "submit" | undefined;
+  type?: "submit" | "button" | undefined;
   form?: string;
   style?: string;
   loading?: boolean;

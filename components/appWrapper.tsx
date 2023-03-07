@@ -64,7 +64,7 @@ export default function AppWrapper({
         name: "QA Schemes",
         href: "/qa-schemes",
         icon: InboxIcon,
-        current: router.route.includes("qa"),
+        current: router.route.includes("qa-schemes"),
       },
       {
         name: "Users",
