@@ -196,7 +196,7 @@ export default function QuestionsPage(props: PropsWithChildren<Props>) {
   return (
     <>
       <PageModal title='Add Question' open={showAddModal} onClose={closeModal}>
-        {/* <QuestionForm
+        <QuestionForm
           name={newName}
           description={newDescription}
           importance={newImportance}
@@ -207,14 +207,14 @@ export default function QuestionsPage(props: PropsWithChildren<Props>) {
           submitButton='Add New Question'
           onSubmit={addNewQuestion}
           onCancel={closeModal}
-        ></QuestionForm> */}
+        ></QuestionForm>
       </PageModal>
       <PageModal
         title='Edit Question'
         open={showEditModal}
         onClose={closeEditModal}
       >
-        {/* <QuestionForm
+        <QuestionForm
           name={editName}
           description={editDescription}
           importance={editImportance}
@@ -225,7 +225,7 @@ export default function QuestionsPage(props: PropsWithChildren<Props>) {
           submitButton='Save Question'
           onSubmit={editQuestionHandler}
           onCancel={closeEditModal}
-        ></QuestionForm> */}
+        ></QuestionForm>
       </PageModal>
       <AppWrapper
         title={props.data.category.name}
