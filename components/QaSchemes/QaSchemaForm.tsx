@@ -30,7 +30,7 @@ export default function QaSchemeForm(
             name='text'
             id='name'
             className='block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
-            placeholder='The question itself...'
+            placeholder='The QA scheme name...'
             value={props.name}
             onChange={(event) => props.setNewName(event.target.value)}
             required
@@ -50,7 +50,7 @@ export default function QaSchemeForm(
             id='description'
             rows={10}
             className='block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
-            placeholder='Provide a small description of the question (optional)...'
+            placeholder='Provide a small description of the scheme (optional)...'
             value={props.description}
             onChange={(event) => props.setNewDescription(event.target.value)}
           />

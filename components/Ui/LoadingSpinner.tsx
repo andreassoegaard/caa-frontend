@@ -1,9 +1,28 @@
-export default function LoadingSpinner() {
+import { useMemo } from "react";
+
+interface Props {
+  color?: string;
+}
+
+export default function LoadingSpinner(props: Props) {
+  const classNames = (...classes: string[]) => {
+    return classes.join(" ");
+  };
+  const spinnerStyles = useMemo(() => {
+    const classes = ["inline w-4 h-4 mr-2 animate-spin"];
+    if (props.color === "red") {
+      classes.push("fill-white text-red-600");
+    } else {
+      classes.push("fill-black text-gray-200");
+    }
+    return classes.join(" ");
+  }, [props.color]);
+
   return (
     <div role='status'>
       <svg
         aria-hidden='true'
-        className='inline w-4 h-4 mr-2 text-white animate-spin dark:text-indigo-900 fill-indigo-600 dark:fill-white'
+        className={spinnerStyles}
         viewBox='0 0 100 101'
         fill='none'
         xmlns='http://www.w3.org/2000/svg'

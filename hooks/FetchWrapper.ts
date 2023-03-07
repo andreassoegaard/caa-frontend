@@ -1,9 +1,7 @@
 import { useSession } from "next-auth/react";
 import { useLogOut } from "@/hooks/LogOut";
 
-const useRequest = (method: string) => {
-  const session = useSession();
-
+const request = (method: string, session: any, logOutFunc: any) => {
   return (url: string, options?: any) => {
     const headers = new Headers();
     const requestOptions = {
@@ -14,6 +12,7 @@ const useRequest = (method: string) => {
       if (options.body instanceof FormData) {
         requestOptions.body = options.body;
       } else {
+        headers.set("Content-Type", "application/json");
         requestOptions.body = JSON.stringify(options.body);
       }
     }
@@ -22,13 +21,13 @@ const useRequest = (method: string) => {
     } else if (options && options.session) {
       headers.set("Authorization", `Bearer ${options.session.accessToken}`);
     }
-    return fetch(url, requestOptions).then(useHandleResponse);
+    return fetch(url, requestOptions).then((response) =>
+      handleResponse(response, logOutFunc)
+    );
   };
 };
 
-const useHandleResponse = async (response: any) => {
-  const { logOut } = useLogOut();
-
+const handleResponse = async (response: any, logOut: any) => {
   try {
     const data = await response.json();
     if (!response.ok) {
@@ -46,10 +45,13 @@ const useHandleResponse = async (response: any) => {
 };
 
 export const useFetchWrapper = () => {
+  const { logOut } = useLogOut();
+  const session = useSession();
+
   return {
-    get: useRequest("GET"),
-    post: useRequest("POST"),
-    put: useRequest("PUT"),
-    delete: useRequest("DELETE"),
+    get: request("GET", session, logOut),
+    post: request("POST", session, logOut),
+    put: request("PUT", session, logOut),
+    delete: request("DELETE", session, logOut),
   };
 };
