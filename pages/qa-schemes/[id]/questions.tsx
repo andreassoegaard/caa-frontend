@@ -11,7 +11,7 @@ import PageBox from "@/components/pageBox";
 import TableComponent from "@/components/tableComponent";
 import PageModal from "@/components/pageModal";
 import PageButton from "@/components/pageButton";
-// import QuestionForm from "@/components/QaSchemes/questionForm";
+import QuestionForm from "@/components/QaSchemes/QaQuestionForm";
 
 // Define props
 interface Props {

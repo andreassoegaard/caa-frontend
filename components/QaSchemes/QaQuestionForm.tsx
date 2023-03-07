@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react";
 import PageButton from "@/components/pageButton";
 
-interface Form {
+interface QuestionFormProps {
   onSubmit(event: any): void;
   onCancel(event: any): void;
   setNewName(value: string): void;
@@ -14,7 +14,9 @@ interface Form {
   submitButton: string;
 }
 
-export default function QuestionForm(props: PropsWithChildren<Form>) {
+export default function QuestionForm(
+  props: PropsWithChildren<QuestionFormProps>
+) {
   return (
     <form onSubmit={props.onSubmit}>
       <div className='mb-3'>
