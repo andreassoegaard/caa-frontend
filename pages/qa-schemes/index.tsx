@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import TableComponent from "@/components/tableComponent";
 import PageButton from "@/components/pageButton";
 import PageModal from "@/components/pageModal";
-import QaSchemeForm from "@/components/QaSchemes/QaSchemeForm";
+// import QaSchemeForm from "@/components/QaSchemes/QaSchemeForm";
 
 export default function Qa(props: any) {
   const tableHeaders = [
